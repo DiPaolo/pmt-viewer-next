@@ -18,6 +18,12 @@ set(PROJECT_SOURCES
         main.cpp
         src/main_window.cpp
         src/main_window.h
+        src/packet.cpp
+        src/packet.h
+        src/transport_stream.cpp
+        src/transport_stream.h
+        src/pmt_viewer.cpp
+        # UI
         src/ui/main_window.ui
 )
 
