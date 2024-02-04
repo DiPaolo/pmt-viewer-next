@@ -1,29 +1,26 @@
 /*******************************************************************************
-* File: Packet.h
-*
-* Description:
-*    CPacket class definition. This class implements transport packet in
-*    MPEG-2 Transport Stream. Also contains structures used by CPacket class
-*    for parsing packet.
-*
-*    See ISO/IEC 13818-1 second edition (2000-12-01).
-*
-* Copyright (c) Ditenbir Pavel, 2007.
-*
-*******************************************************************************/
+ * File: Packet.h
+ *
+ * Description:
+ *    CPacket class definition. This class implements transport packet in
+ *    MPEG-2 Transport Stream. Also contains structures used by CPacket class
+ *    for parsing packet.
+ *
+ *    See ISO/IEC 13818-1 second edition (2000-12-01).
+ *
+ * Copyright (c) Ditenbir Pavel, 2007, 2024.
+ *
+ *******************************************************************************/
 
 #ifndef _PACKET_H_
 #define _PACKET_H_
 
-
-#include <Windows.h>
 #include <list>
 
 //
 // #define directives
 //
 #define GET_BIT(byte, bit) (((byte) >> (bit)) & 0x01)
-
 
 //
 // Class and structures defined in this file
@@ -38,167 +35,156 @@ struct PROGRAM_DESCRIPTOR;
 struct ES_INFO;
 struct DESCRIPTOR;
 
-
 //
 // Typedefs
 //
-typedef const BYTE* PCBYTE;
+typedef const uint8_t* PCBYTE;
 
 typedef std::list<PROGRAM_DESCRIPTOR> PATable;
-typedef std::list<ES_INFO>            PMTable;
-typedef std::list<DESCRIPTOR>         Descriptors;
-
+typedef std::list<ES_INFO> PMTable;
+typedef std::list<DESCRIPTOR> Descriptors;
 
 //
 // Class and structures definitions
 //
 
 // See table 2-2 in ISO/IEC 13818-1 second edition (2000-12-01).
-struct PACKET_HEADER
-{
-	PACKET_HEADER(void);
-	PACKET_HEADER(PCBYTE& pb);
+struct PACKET_HEADER {
+    PACKET_HEADER(void);
+    PACKET_HEADER(PCBYTE& pb);
 
-	void Reset(void);
+    void Reset(void);
 
-	BYTE   sync_byte;
-	BYTE   transport_error_indicator    : 1;
-	BYTE   payload_unit_start_indicator : 1;
-	BYTE   transport_priority           : 1;
-	USHORT PID                          : 13;
-	BYTE   transport_scrambling_control : 2;
-	BYTE   adaptation_field_control     : 2;
-	BYTE   continuity_counter           : 4;
+    uint8_t sync_byte;
+    uint8_t transport_error_indicator : 1;
+    uint8_t payload_unit_start_indicator : 1;
+    uint8_t transport_priority : 1;
+    uint16_t PID : 13;
+    uint8_t transport_scrambling_control : 2;
+    uint8_t adaptation_field_control : 2;
+    uint8_t continuity_counter : 4;
 };
 
 // See table 2-25 in ISO/IEC 13818-1 second edition (2000-12-01).
-struct PA_SECTION
-{
-	// constructors
-	PA_SECTION(void);
-	PA_SECTION(PCBYTE& pb);
+struct PA_SECTION {
+    // constructors
+    PA_SECTION(void);
+    PA_SECTION(PCBYTE& pb);
 
-	void Reset(void);
+    void Reset(void);
 
-	BYTE    table_id;
-	USHORT  section_syntax_indicator : 1;
-	USHORT  bit_null                 : 1;
-	USHORT  reserved_1               : 2;
-	USHORT  section_length           : 12;
-	USHORT  transport_stream_id;
-	BYTE    reserved_2               : 2;
-	BYTE    version_number           : 5;
-	BYTE    current_next_indicator   : 1;
-	BYTE    section_number;
-	BYTE    last_section_number;
+    uint8_t table_id;
+    uint16_t section_syntax_indicator : 1;
+    uint16_t bit_null : 1;
+    uint16_t reserved_1 : 2;
+    uint16_t section_length : 12;
+    uint16_t transport_stream_id;
+    uint8_t reserved_2 : 2;
+    uint8_t version_number : 5;
+    uint8_t current_next_indicator : 1;
+    uint8_t section_number;
+    uint8_t last_section_number;
 
-	PATable m_PAT;
+    PATable m_PAT;
 
-	UINT    CRC_32;
+    uint32_t CRC_32;
 };
 
 // See table 2-28 in ISO/IEC 13818-1 second edition (2000-12-01).
-struct PM_SECTION
-{
-	PM_SECTION(void);
-	PM_SECTION(PCBYTE& pb);
+struct PM_SECTION {
+    PM_SECTION(void);
+    PM_SECTION(PCBYTE& pb);
 
-	void Reset(void);
+    void Reset(void);
 
-	BYTE    table_id;
-	USHORT  section_syntax_indicator : 1;
-	USHORT  bit_null                 : 1;
-	USHORT  reserved_1               : 2;
-	USHORT  section_length           : 12;
-	USHORT  program_number;
-	BYTE    reserved_2               : 2;
-	BYTE    version_number           : 5;
-	BYTE    current_next_indicator   : 1;
-	BYTE    section_number;
-	BYTE    last_section_number;
-	USHORT  reserved_3          : 3;
-	USHORT  PCR_PID             : 13;
-	USHORT  reserved_4          : 4;
-	USHORT  program_info_length : 12;
+    uint8_t table_id;
+    uint16_t section_syntax_indicator : 1;
+    uint16_t bit_null : 1;
+    uint16_t reserved_1 : 2;
+    uint16_t section_length : 12;
+    uint16_t program_number;
+    uint8_t reserved_2 : 2;
+    uint8_t version_number : 5;
+    uint8_t current_next_indicator : 1;
+    uint8_t section_number;
+    uint8_t last_section_number;
+    uint16_t reserved_3 : 3;
+    uint16_t PCR_PID : 13;
+    uint16_t reserved_4 : 4;
+    uint16_t program_info_length : 12;
 
-	Descriptors program_descriptors;
-	PMTable     m_PMT;
+    Descriptors program_descriptors;
+    PMTable m_PMT;
 
-	UINT    CRC_32;
+    uint32_t CRC_32;
 };
 
 // Used by PA_SECTION. Associates Program Number and Program Map Table PID.
 // See table 2-25 in ISO/IEC 13818-1 second edition (2000-12-01).
-struct PROGRAM_DESCRIPTOR
-{
-	USHORT program_number;
-	USHORT reserved : 3;
-	USHORT PID      : 13;
+struct PROGRAM_DESCRIPTOR {
+    uint16_t program_number;
+    uint16_t reserved : 3;
+    uint16_t PID : 13;
 };
 
 // Used by PM_SECTION.
 // See table 2-28 in ISO/IEC 13818-1 second edition (2000-12-01).
-struct ES_INFO
-{
-	ES_INFO(void);
-	ES_INFO(PCBYTE& pb);
+struct ES_INFO {
+    ES_INFO(void);
+    ES_INFO(PCBYTE& pb);
 
-	void Reset(void);
+    void Reset(void);
 
-	BYTE   stream_type;
-	USHORT reserved_1     : 3;
-	USHORT elementary_PID : 13;
-	USHORT reserved_2     : 4;
-	USHORT ES_info_length : 12;
+    uint8_t stream_type;
+    uint16_t reserved_1 : 3;
+    uint16_t elementary_PID : 13;
+    uint16_t reserved_2 : 4;
+    uint16_t ES_info_length : 12;
 
-	Descriptors ES_descriptors;
+    Descriptors ES_descriptors;
 };
 
 // See section 2.6 in ISO/IEC 13818-1 second edition (2000-12-01).
-struct DESCRIPTOR
-{
-	DESCRIPTOR(void);
-	DESCRIPTOR(PCBYTE& pb);
-	DESCRIPTOR(const DESCRIPTOR& d);
-	~DESCRIPTOR(void);
+struct DESCRIPTOR {
+    DESCRIPTOR(void);
+    DESCRIPTOR(PCBYTE& pb);
+    DESCRIPTOR(const DESCRIPTOR& d);
+    ~DESCRIPTOR(void);
 
-	DESCRIPTOR& operator=(const DESCRIPTOR& d);
+    DESCRIPTOR& operator=(const DESCRIPTOR& d);
 
-	void Reset(void);
+    void Reset(void);
 
-	BYTE  tag;
-	BYTE  length;
-	BYTE* pbData;
+    uint8_t tag;
+    uint8_t length;
+    uint8_t* pbData;
 };
 
-
-class CPacket
-{
+class CPacket {
 public:
-	// constants
-	static const int    PACKET_SIZE = 188;  // size in bytes of TS packet
-	static const BYTE   SYNC_BYTE   = 0x47; // compare with first byte in packet
-	static const USHORT NULL_PACKET = 0x1FFF;
+    // constants
+    static const int PACKET_SIZE = 188; // size in bytes of TS packet
+    static const uint8_t SYNC_BYTE = 0x47; // compare with first byte in packet
+    static const uint16_t NULL_PACKET = 0x1FFF;
 
 public:
-	CPacket(void);
-	CPacket(const BYTE* pbData);
-	~CPacket(void);
+    CPacket(void);
+    CPacket(const uint8_t* pbData);
+    ~CPacket(void);
 
-	void Set(const BYTE* pbData);
+    void Set(const uint8_t* pbData);
 
-	BOOL CheckSyncByte(void) const;
+    bool CheckSyncByte(void) const;
 
-	BOOL	IsPMS(void) const;
-	USHORT	GetPID(void) const;
-	BOOL	GetPASection(PA_SECTION* pPAS) const;
-	BOOL	GetPMSection(PM_SECTION* pPMS, PATable pat) const;
+    bool IsPMS(void) const;
+    uint16_t GetPID(void) const;
+    bool GetPASection(PA_SECTION* pPAS) const;
+    bool GetPMSection(PM_SECTION* pPMS, PATable pat) const;
 
 private:
-	const BYTE*   m_pbData;
-	PACKET_HEADER m_header;
-	PA_SECTION    m_PASection;
+    const uint8_t* m_pbData;
+    PACKET_HEADER m_header;
+    PA_SECTION m_PASection;
 };
-
 
 #endif // _PACKET_H_

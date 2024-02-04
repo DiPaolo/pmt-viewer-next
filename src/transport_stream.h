@@ -1,56 +1,54 @@
 /*******************************************************************************
-* File: TransportStream.h
-*
-* Description: CTransportStream class definition. This class implements
-*              MPEG-2 Transport Stream according to ISO/IEC 13818-1 second
-*              edition (2000-12-01) specification.
-*
-* Copyright (c) Ditenbir Pavel, 2007.
-*
-*******************************************************************************/
+ * File: TransportStream.h
+ *
+ * Description: CTransportStream class definition. This class implements
+ *              MPEG-2 Transport Stream according to ISO/IEC 13818-1 second
+ *              edition (2000-12-01) specification.
+ *
+ * Copyright (c) Ditenbir Pavel, 2007, 2024.
+ *
+ *******************************************************************************/
 
 #ifndef _TRANSPORT_STREAM_H_
 #define _TRANSPORT_STREAM_H_
 
+#include <string>
 
-#include <Windows.h>
-#include "Packet.h"
+#include "packet.h"
 
-class CTransportStream
-{
+class CTransportStream {
 public:
-	CTransportStream(void);
-	CTransportStream(LPCTSTR pszFileName);
-	~CTransportStream(void);
+    CTransportStream(void);
+    CTransportStream(const std::string& pszFileName);
+    ~CTransportStream(void);
 
-	BOOL Open(LPCTSTR pszFileName);
-	void Close(void);
+    bool Open(const std::string& pszFileName);
+    void Close(void);
 
-	BOOL IsMPEG2TS(void) const;
+    bool IsMPEG2TS(void) const;
 
-	LPCTSTR GetFileName(void) const;
-	DWORD   GetFileSize(void) const;
-	UINT    GetPMSCount(void);
-	UINT    GetPacketsCount(void) const;
+    std::string GetFileName(void) const;
+    int GetFileSize(void) const;
+    uint32_t GetPMSCount(void);
+    uint32_t GetPacketsCount(void) const;
 
-	// random access to PM Sections in a TS
-	UINT GetPMSection(UINT uNum, PM_SECTION* pPMS) const;
+    // random access to PM Sections in a TS
+    uint32_t GetPMSection(uint32_t uNum, PM_SECTION* pPMS) const;
 
-	// functions for sequential access to PM Sections in a TS
-	UINT GetFirstPMSection(PM_SECTION* pPMS, UINT* uPMSNum = NULL);
-	UINT GetLastPMSection (PM_SECTION* pPMS, UINT* uPMSNum = NULL);
-	UINT GetNextPMSection (PM_SECTION* pPMS, UINT* uPMSNum = NULL);
-	UINT GetPrevPMSection (PM_SECTION* pPMS, UINT* uPMSNum = NULL);
+    // functions for sequential access to PM Sections in a TS
+    uint32_t GetFirstPMSection(PM_SECTION* pPMS, uint32_t* uPMSNum = NULL);
+    uint32_t GetLastPMSection(PM_SECTION* pPMS, uint32_t* uPMSNum = NULL);
+    uint32_t GetNextPMSection(PM_SECTION* pPMS, uint32_t* uPMSNum = NULL);
+    uint32_t GetPrevPMSection(PM_SECTION* pPMS, uint32_t* uPMSNum = NULL);
 
 private:
-    HANDLE m_hFile;
-	TCHAR  m_szFileName[MAX_PATH];
-	UINT   m_uPMSCount; // count of PM Section in TS
+    std::FILE* m_hFile = nullptr;
+    std::string m_szFileName = "";
+    uint32_t m_uPMSCount = 0; // count of PM Section in TS
 
-	// zero-based variables used by functions for sequential access to PM Sections
-	UINT m_uCurPMS;       // number of current PMS
-	UINT m_uCurPMSPacket; // number of current packet that contains PM Section
+    // zero-based variables used by functions for sequential access to PM Sections
+    uint32_t m_uCurPMS = 0; // number of current PMS
+    uint32_t m_uCurPMSPacket = 0; // number of current packet that contains PM Section
 };
-
 
 #endif // _TRANSPORT_STREAM_H_

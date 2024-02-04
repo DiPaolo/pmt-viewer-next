@@ -8,6 +8,8 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
+set(CMAKE_AUTOUIC_SEARCH_PATHS src/ui)
+
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -22,7 +24,6 @@ set(PROJECT_SOURCES
         src/packet.h
         src/transport_stream.cpp
         src/transport_stream.h
-        src/pmt_viewer.cpp
         # UI
         src/ui/main_window.ui
 )
@@ -53,7 +54,7 @@ endif()
 target_link_libraries(pmt-viewer-next PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 
 set_target_properties(pmt-viewer-next PROPERTIES
-    MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com
+    MACOSX_BUNDLE_GUI_IDENTIFIER pmt_viewer_next.dipaolo.dev
     MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
     MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
     MACOSX_BUNDLE TRUE
