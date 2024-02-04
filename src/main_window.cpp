@@ -143,6 +143,7 @@ void Dialog::PMSNavigate(CTransportStream& TS, Navigation navigation)
     ui->showNext->setEnabled(fBtnNext);
     ui->showLast->setEnabled(fBtnLast);
 }
+
 //
 // ShowPMSInfo
 //
@@ -167,58 +168,43 @@ void Dialog::ShowPMSInfo(const PM_SECTION* pPMS, uint32_t uPMSNum, uint32_t uPac
 
     // Fill the list box with the values of program descriptors
 
-    //    SendDlgItemMessage(hwndDlg, IDC_PROGRAM_DESCRIPTORS, LB_RESETCONTENT, 0, 0);
+    ui->programDescriptors->clear();
 
-    //    for (Descriptors::const_iterator iter = pPMS->program_descriptors.begin();
-    //         iter != pPMS->program_descriptors.end(); iter++) {
-    //        TCHAR szByte[6] = { 0 };
-    //        TCHAR szBytes[256 * 5 + 1] = { 0 }; // maximum 256 1-byte values (" 0xFF")
-    //        for (BYTE i = 0; i < iter->length; i++) {
-    //            wsprintf(szByte, " 0x%X", iter->pbData[i]);
-    //            lstrcat(szBytes, szByte);
-    //        }
-    //        wsprintf(sz, TEXT("{tag: %u; length: %u; data:%s}"), iter->tag, iter->length, szBytes);
-    //        SendDlgItemMessage(hwndDlg, IDC_PROGRAM_DESCRIPTORS, LB_ADDSTRING, 0, (LPARAM)sz);
-    //    }
+    for (Descriptors::const_iterator iter = pPMS->program_descriptors.begin(); iter != pPMS->program_descriptors.end(); iter++) {
+        std::stringstream bytesSs;
+        for (uint8_t i = 0; i < iter->length; i++) {
+            bytesSs << "0x" << std::hex << std::uppercase << iter->pbData[i];
+        }
 
-    //    // Fill the tree-view with the values of ES descriptors
+        ss << "{tag: " << iter->tag << "; length: " << iter->length << "; data: " << bytesSs.str() << "}";
 
-    //    HWND hwndTV = GetDlgItem(hwndDlg, IDC_ES_DESCRIPTORS);
+        ui->programDescriptors->addItem(ss.str().c_str());
+    }
 
-    //    TreeView_DeleteAllItems(hwndTV);
+    // Fill the tree-view with the values of ES descriptors
 
-    //    for (PMTable::const_iterator iter = pPMS->m_PMT.begin(); iter != pPMS->m_PMT.end(); iter++) {
-    //        wsprintf(sz, TEXT("{stream type: %u; elementary PID: %u; ES info length: %u}"),
-    //            iter->stream_type, iter->elementary_PID, iter->ES_info_length);
+    ui->esDescriptors->clear();
 
-    //        TVITEMEX tvi = { 0 };
-    //        tvi.mask = TVIF_TEXT;
-    //        tvi.pszText = sz;
-    //        tvi.cchTextMax = sizeof(sz) / sizeof(sz[0]);
+    for (PMTable::const_iterator iter = pPMS->m_PMT.begin(); iter != pPMS->m_PMT.end(); iter++) {
+        std::stringstream pmsSs;
+        pmsSs << "{stream type: " << iter->stream_type << "; elementary PID: " << iter->elementary_PID << "; ES info length: " << iter->ES_info_length << "}";
 
-    //        TVINSERTSTRUCT tvis = { 0 };
-    //        tvis.hParent = TVI_ROOT;
-    //        tvis.hInsertAfter = TVI_LAST;
-    //        tvis.itemex = tvi;
+        auto topLevelItem = new QTreeWidgetItem({ pmsSs.str().c_str() });
 
-    //        HTREEITEM hTIRoot = TreeView_InsertItem(hwndTV, &tvis);
+        for (Descriptors::const_iterator descriptorsIter = iter->ES_descriptors.begin(); descriptorsIter != iter->ES_descriptors.end(); descriptorsIter++) {
+            std::stringstream bytesSs;
+            for (uint8_t i = 0; i < descriptorsIter->length; i++) {
+                bytesSs << "0x" << std::hex << std::uppercase << descriptorsIter->pbData[i];
+            }
 
-    //        for (Descriptors::const_iterator descriptorsIter = iter->ES_descriptors.begin();
-    //             descriptorsIter != iter->ES_descriptors.end(); descriptorsIter++) {
-    //            TCHAR szByte[6] = { 0 };
-    //            TCHAR szBytes[256 * 5 + 1] = { 0 }; // maximum 256 1-byte values (" 0xFF")
-    //            for (BYTE i = 0; i < descriptorsIter->length; i++) {
-    //                wsprintf(szByte, " 0x%X", descriptorsIter->pbData[i]);
-    //                lstrcat(szBytes, szByte);
-    //            }
-    //            wsprintf(sz, TEXT("{tag: %u; length: %u; data:%s}"),
-    //                descriptorsIter->tag, descriptorsIter->length, szBytes);
+            std::stringstream descriptorSs;
+            descriptorSs << "{tag: " << descriptorsIter->tag << "; length: " << descriptorsIter->length << "; data: " << bytesSs.str() << "}";
 
-    //            tvis.hParent = hTIRoot;
-    //            tvis.hInsertAfter = TVI_LAST;
-    //            TreeView_InsertItem(hwndTV, &tvis);
-    //        }
-    //    }
+            topLevelItem->addChild(new QTreeWidgetItem({ descriptorSs.str().c_str() }));
+        }
+
+        ui->esDescriptors->addTopLevelItem(topLevelItem);
+    }
 }
 
 //
